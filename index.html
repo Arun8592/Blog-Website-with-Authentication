@@ -1,16 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#0f0f0f" />
-    <meta name="description" content="A modern blog platform with authentication" />
-    <title>Inkwell — A Modern Blog</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inkwell Blog</title>
+<style>
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#111;
+    color:white;
+}
+header{
+    background:#222;
+    padding:20px;
+    text-align:center;
+}
+nav a{
+    color:white;
+    margin:0 15px;
+    text-decoration:none;
+}
+.hero{
+    text-align:center;
+    padding:60px 20px;
+}
+.posts{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+    padding:20px;
+}
+.card{
+    background:#1e1e1e;
+    padding:20px;
+    border-radius:10px;
+}
+button{
+    background:#4CAF50;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:5px;
+    cursor:pointer;
+}
+footer{
+    text-align:center;
+    padding:20px;
+    background:#222;
+}
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Inkwell Blog</h1>
+    <nav>
+        <a href="#">Home</a>
+        <a href="#">Blog</a>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+    </nav>
+</header>
+
+<section class="hero">
+    <h2>Welcome to Inkwell</h2>
+    <p>Modern Blog Website</p>
+</section>
+
+<section class="posts">
+    <div class="card">
+        <h3>First Blog Post</h3>
+        <p>This is a sample blog article.</p>
+        <button>Read More</button>
+    </div>
+
+    <div class="card">
+        <h3>Technology News</h3>
+        <p>Latest updates from the tech world.</p>
+        <button>Read More</button>
+    </div>
+
+    <div class="card">
+        <h3>Programming Tips</h3>
+        <p>Learn HTML, CSS and JavaScript.</p>
+        <button>Read More</button>
+    </div>
+</section>
+
+<footer>
+    © 2026 Inkwell Blog
+</footer>
+
+</body>
 </html>
