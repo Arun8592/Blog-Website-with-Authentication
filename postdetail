@@ -1,0 +1,136 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
+export default function PostDetail() {
+  const { id } = useParams();
+  const [post, setPost] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const { user, token, API } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch(`${API}/posts/${id}`)
+      .then(r => r.json())
+      .then(data => { setPost(data); setLoading(false); })
+      .catch(() => { setError('Post not found.'); setLoading(false); });
+  }, [id]);
+
+  const handleDelete = async () => {
+    if (!window.confirm('Delete this post permanently?')) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`${API}/posts/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) navigate('/dashboard');
+      else setError('Could not delete post.');
+    } catch {
+      setError('Network error.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  if (loading) return <div className="spinner" />;
+  if (error || !post) return (
+    <div style={styles.page}>
+      <div className="container">
+        <p className="error-msg">{error || 'Post not found.'}</p>
+        <Link to="/" style={{ color: 'var(--accent)' }}>← Back to Home</Link>
+      </div>
+    </div>
+  );
+
+  const isAuthor = user && user.id === post.authorId;
+  const date = new Date(post.createdAt).toLocaleDateString('en-US', {
+    year: 'numeric', month: 'long', day: 'numeric'
+  });
+
+  // Render simple markdown-ish content
+  const renderContent = (text) => {
+    return text.split('\n').map((line, i) => {
+      if (line.startsWith('# ')) return <h1 key={i} style={styles.h1}>{line.slice(2)}</h1>;
+      if (line.startsWith('## ')) return <h2 key={i} style={styles.h2}>{line.slice(3)}</h2>;
+      if (line.startsWith('### ')) return <h3 key={i} style={styles.h3}>{line.slice(4)}</h3>;
+      if (line.trim() === '') return <br key={i} />;
+      return <p key={i} style={styles.p}>{line}</p>;
+    });
+  };
+
+  return (
+    <div style={styles.page} className="page-fade">
+      <div className="container">
+        <Link to="/" style={styles.back}>← All Articles</Link>
+
+        <article style={styles.article}>
+          <header style={styles.header}>
+            {post.tags?.length > 0 && (
+              <div style={styles.tags}>
+                {post.tags.map(t => <span key={t} style={styles.tag}>{t}</span>)}
+              </div>
+            )}
+            <h1 style={styles.title}>{post.title}</h1>
+            <div style={styles.meta}>
+              <span style={styles.author}>By {post.author}</span>
+              <span style={{ color: 'var(--text-dim)' }}>·</span>
+              <time style={styles.date}>{date}</time>
+            </div>
+          </header>
+
+          <div style={styles.divider} />
+
+          <div style={styles.content}>
+            {renderContent(post.content)}
+          </div>
+
+          {isAuthor && (
+            <div style={styles.actions}>
+              <Link to={`/edit/${post.id}`} className="btn-ghost" style={styles.editBtn}>
+                Edit Post
+              </Link>
+              <button onClick={handleDelete} className="btn-danger" disabled={deleting}>
+                {deleting ? 'Deleting…' : 'Delete Post'}
+              </button>
+            </div>
+          )}
+        </article>
+      </div>
+    </div>
+  );
+}
+
+const styles = {
+  page: { paddingTop: 48, paddingBottom: 80 },
+  back: { color: 'var(--text-muted)', fontSize: 14, display: 'inline-block', marginBottom: 40 },
+  article: { maxWidth: 720, margin: '0 auto' },
+  header: { marginBottom: 32 },
+  tags: { display: 'flex', gap: 8, marginBottom: 20 },
+  tag: {
+    background: 'var(--bg-3)', color: 'var(--accent)',
+    padding: '4px 12px', borderRadius: 100, fontSize: 12,
+    border: '1px solid rgba(201,169,110,0.2)',
+  },
+  title: {
+    fontFamily: 'var(--font-display)',
+    fontSize: 'clamp(28px, 5vw, 46px)',
+    fontWeight: 700, lineHeight: 1.2, marginBottom: 20, letterSpacing: '-0.5px',
+  },
+  meta: { display: 'flex', alignItems: 'center', gap: 10 },
+  author: { color: 'var(--accent)', fontSize: 14, fontWeight: 500 },
+  date: { color: 'var(--text-muted)', fontSize: 14 },
+  divider: { height: 1, background: 'var(--border)', margin: '32px 0' },
+  content: { lineHeight: 1.9 },
+  h1: { fontFamily: 'var(--font-display)', fontSize: 28, marginBottom: 16, marginTop: 32 },
+  h2: { fontFamily: 'var(--font-display)', fontSize: 22, marginBottom: 12, marginTop: 28 },
+  h3: { fontFamily: 'var(--font-display)', fontSize: 18, marginBottom: 10, marginTop: 24 },
+  p: { color: 'var(--text)', marginBottom: 16, fontSize: 17, lineHeight: 1.85 },
+  actions: {
+    display: 'flex', gap: 12, marginTop: 64,
+    paddingTop: 32, borderTop: '1px solid var(--border)',
+  },
+  editBtn: { display: 'inline-block', padding: '10px 20px', fontSize: 14 },
+};
